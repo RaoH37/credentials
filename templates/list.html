@@ -1,0 +1,22 @@
+{{template "header" .}}
+<div class="card">
+{{if .List}}
+<table>
+  <thead><tr><th>ID</th><th>Nom</th><th>Format</th><th class="hide-sm">Description</th><th class="hide-sm">API</th></tr></thead>
+  <tbody>
+  {{range .List}}
+    <tr>
+      <td class="mono">{{.ID}}</td>
+      <td><a href="/admin/{{.ID}}">{{.Name}}</a></td>
+      <td><span class="tag">{{.Format}}</span></td>
+      <td class="hide-sm muted">{{.Description}}</td>
+      <td class="hide-sm"><a class="mono" href="/credentials/{{.ID}}">/credentials/{{.ID}}</a></td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p class="muted">Aucun credential pour l'instant. <a href="/admin/new">Créer le premier</a>.</p>
+{{end}}
+</div>
+{{template "footer" .}}

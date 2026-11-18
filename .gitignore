@@ -1,0 +1,13 @@
+# binaire
+/credentials
+
+# bases de données (contiennent les credentials chiffrés)
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
