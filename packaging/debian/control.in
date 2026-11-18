@@ -5,8 +5,8 @@ Priority: optional
 Architecture: @ARCH@
 Maintainer: @MAINTAINER@
 Depends: systemd (>= 250), debconf (>= 0.5) | debconf-2.0
-Description: coffre local de credentials pour le développement
- Petit serveur HTTP local (API JSON + interface d'administration) qui stocke
- des credentials chiffrés (AES-256-GCM, clé dérivée par Argon2id) dans une
- base SQLite. Le service systemd démarre au boot ; la passphrase est chiffrée
- par systemd-creds (TPM2 + clé de l'hôte).
+Description: local credentials vault for development
+ Small local HTTP server (JSON API + admin interface) storing encrypted
+ credentials (AES-256-GCM, key derived with Argon2id) in a SQLite database.
+ The systemd service starts at boot; its passphrase is encrypted with
+ systemd-creds (TPM2 + host key).

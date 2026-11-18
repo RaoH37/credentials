@@ -1,5 +1,5 @@
 {{define "header"}}<!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +36,7 @@
 </style>
 </head>
 <body>
-<header><a href="/admin">🔐 Credentials</a><a class="btn primary" href="/admin/new">+ Nouveau</a></header>
+<header><a href="/admin">Credentials</a><a class="btn primary" href="/admin/new">+ New</a></header>
 <main>
 {{if .Flash}}<div class="alert ok">{{.Flash}}</div>{{end}}
 {{if .Error}}<div class="alert err">{{.Error}}</div>{{end}}

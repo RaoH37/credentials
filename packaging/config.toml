@@ -1,18 +1,19 @@
-# Configuration du service credentials (lue via : credentials -config /etc/credentials/config.toml)
-# Après modification : sudo systemctl restart credentials
+# Configuration of the credentials service
+# (read with: credentials -config /etc/credentials/config.toml).
+# Apply changes with: sudo systemctl restart credentials
 
-# Adresse d'écoute. Seules les adresses loopback sont acceptées
-# (127.0.0.1, ::1, localhost) : l'API n'a pas d'authentification.
+# Listen address. Only loopback addresses are accepted
+# (127.0.0.1, ::1, localhost): the API has no authentication.
 addr = "127.0.0.1:12345"
 
-# Emplacement de la base SQLite.
-# Le service est isolé (ProtectSystem=strict, ProtectHome=yes) : seul
-# /var/lib/credentials est accessible en écriture. Pour un autre emplacement,
-# ajoutez un override : sudo systemctl edit credentials
+# SQLite database location.
+# The service is sandboxed (ProtectSystem=strict, ProtectHome=yes): only
+# /var/lib/credentials is writable. To use another location, add an override
+# with "sudo systemctl edit credentials":
 #   [Service]
-#   ReadWritePaths=/autre/dossier
+#   ReadWritePaths=/other/directory
 db = "/var/lib/credentials/credentials.db"
 
-# La passphrase n'est PAS dans ce fichier : elle est chiffrée par systemd-creds
-# (TPM2 + clé de l'hôte) dans /etc/credentials/passphrase.cred.
-# Pour la (re)définir : sudo credentials-passphrase
+# The passphrase is NOT stored in this file: it is encrypted by systemd-creds
+# (TPM2 + host key) in /etc/credentials/passphrase.cred.
+# To set or change it: sudo credentials-passphrase [--change]

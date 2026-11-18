@@ -1,20 +1,26 @@
 Template: credentials/passphrase
 Type: password
-Description: Passphrase de chiffrement des credentials :
- Cette passphrase dérive la clé qui chiffre la colonne « credentials » de la
- base. Elle ne sera pas stockée en clair : systemd-creds la chiffre avec la
- puce TPM2 et la clé de cette machine, pour que le service démarre seul.
+Description: Passphrase used to encrypt the credentials:
+ This passphrase derives the key that encrypts the "credentials" column of
+ the database. It is not stored in clear text: systemd-creds encrypts it
+ with this machine's TPM2 chip and host key so the service can start on its
+ own. Use at least 12 characters.
  .
- Si une base existe déjà dans /var/lib/credentials, saisissez la passphrase
- avec laquelle elle a été créée.
+ If a database already exists in /var/lib/credentials, enter the passphrase
+ it was created with.
  .
- Laissez vide pour la définir plus tard avec : sudo credentials-passphrase
+ Leave empty to set it later with: sudo credentials-passphrase
 
 Template: credentials/passphrase-again
 Type: password
-Description: Confirmez la passphrase :
+Description: Confirm the passphrase:
 
 Template: credentials/passphrase-mismatch
 Type: error
-Description: Les passphrases ne correspondent pas
- Les deux saisies sont différentes. Recommencez.
+Description: Passphrases do not match
+ The two entries are different. Please try again.
+
+Template: credentials/passphrase-too-short
+Type: error
+Description: Passphrase too short
+ The passphrase must be at least 12 characters long.

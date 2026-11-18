@@ -1,4 +1,4 @@
-module credentials
+module github.com/RaoH37/credentials
 
 go 1.27.1
 

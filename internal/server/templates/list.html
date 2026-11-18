@@ -2,7 +2,7 @@
 <div class="card">
 {{if .List}}
 <table>
-  <thead><tr><th>ID</th><th>Nom</th><th>Format</th><th class="hide-sm">Description</th><th class="hide-sm">API</th></tr></thead>
+  <thead><tr><th>ID</th><th>Name</th><th>Format</th><th class="hide-sm">Description</th><th class="hide-sm">API</th></tr></thead>
   <tbody>
   {{range .List}}
     <tr>
@@ -16,7 +16,7 @@
   </tbody>
 </table>
 {{else}}
-<p class="muted">Aucun credential pour l'instant. <a href="/admin/new">Créer le premier</a>.</p>
+<p class="muted">No credentials yet. <a href="/admin/new">Create the first one</a>.</p>
 {{end}}
 </div>
 {{template "footer" .}}

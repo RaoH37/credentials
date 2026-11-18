@@ -1,10 +1,10 @@
 {{template "header" .}}
 <div class="card">
-  <h2 style="margin-top:0">{{if .IsNew}}Nouveau credential{{else}}#{{.Cred.ID}} · {{.Cred.Name}}{{end}}</h2>
+  <h2 style="margin-top:0">{{if .IsNew}}New credential{{else}}#{{.Cred.ID}} · {{.Cred.Name}}{{end}}</h2>
   {{if not .IsNew}}<p class="muted mono">GET /credentials/{{.Cred.ID}} &nbsp;·&nbsp; GET /credentials/{{.Cred.ID}}/raw</p>{{end}}
   <form method="post" action="{{if .IsNew}}/admin/new{{else}}/admin/{{.Cred.ID}}{{end}}">
     <div class="row">
-      <div><label for="name">Nom</label><input type="text" id="name" name="name" value="{{.Cred.Name}}" required autofocus></div>
+      <div><label for="name">Name</label><input type="text" id="name" name="name" value="{{.Cred.Name}}" required autofocus></div>
       <div style="flex:0 0 160px"><label for="format">Format</label>
         <select id="format" name="format">
           {{$cur := .Cred.Format}}{{range .Formats}}<option value="{{.}}" {{if eq . $cur}}selected{{end}}>{{.}}</option>{{end}}
@@ -13,15 +13,15 @@
     </div>
     <label for="description">Description</label>
     <input type="text" id="description" name="description" value="{{.Cred.Description}}">
-    <label for="credentials">Credentials <span class="muted">(chiffrés en base, AES-256-GCM)</span></label>
-    <textarea id="credentials" name="credentials" spellcheck="false" autocomplete="off">{{.Cred.Credentials}}</textarea>
+    <label for="credentials">Credentials <span class="muted">(encrypted at rest, AES-256-GCM)</span></label>
+    <textarea id="credentials" name="credentials" spellcheck="false" autocomplete="off">{{.Cred.Content}}</textarea>
     <div class="actions">
-      <div><button class="btn primary" type="submit">Enregistrer</button> <a class="btn" href="/admin">Annuler</a></div>
+      <div><button class="btn primary" type="submit">Save</button> <a class="btn" href="/admin">Cancel</a></div>
     </div>
   </form>
   {{if not .IsNew}}
   <form method="post" action="/admin/{{.Cred.ID}}/delete" style="margin-top:12px; text-align:right">
-    <button class="btn danger" type="submit">Supprimer</button>
+    <button class="btn danger" type="submit">Delete</button>
   </form>
   {{end}}
 </div>

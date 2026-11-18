@@ -11,9 +11,9 @@ purge)
 		. /usr/share/debconf/confmodule
 		db_purge
 	fi
-	# La base n'est jamais supprimée automatiquement.
+	# The database is never deleted automatically.
 	if [ -d /var/lib/credentials ]; then
-		echo "credentials : la base est conservée dans /var/lib/credentials (à supprimer à la main)."
+		echo "credentials: the database is kept in /var/lib/credentials (delete it manually)."
 	fi
 	;;
 esac

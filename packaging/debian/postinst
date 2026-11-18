@@ -5,7 +5,7 @@ set -e
 CRED=/etc/credentials/passphrase.cred
 
 forget_passphrase() {
-	# Ne pas laisser la passphrase dans la base debconf.
+	# Do not leave the passphrase in the debconf database.
 	db_set credentials/passphrase "" || true
 	db_set credentials/passphrase-again "" || true
 	db_fset credentials/passphrase seen false || true
@@ -29,15 +29,15 @@ configure)
 		systemctl daemon-reload
 		systemctl enable --quiet credentials.service
 		if [ -e "$CRED" ]; then
-			# Installation ou mise à jour : (re)démarre avec le nouveau binaire.
+			# Install or upgrade: (re)start with the new binary.
 			systemctl restart credentials.service || \
-				echo "credentials : le service n'a pas démarré, voir : journalctl -u credentials" >&2
+				echo "credentials: the service did not start, see: journalctl -u credentials" >&2
 		fi
 	fi
 
 	if [ ! -e "$CRED" ]; then
-		echo "credentials : aucune passphrase configurée, le service ne démarrera pas."
-		echo "credentials : lancez « sudo credentials-passphrase »."
+		echo "credentials: no passphrase configured, the service will not start."
+		echo "credentials: run \"sudo credentials-passphrase\"."
 	fi
 	;;
 esac

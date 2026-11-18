@@ -1,16 +1,19 @@
-# binaire
+# binary
 /credentials
 
-# bases de données (contiennent les credentials chiffrés)
+# databases (contain encrypted credentials)
 *.db
 *.db-wal
 *.db-shm
 *.db-journal
 *.sqlite
 *.sqlite3
+*.db.lock
+# test fixture with a known test passphrase
+!internal/store/testdata/legacy.db
 
 # IDE
 .idea/
 
-# paquets
+# packages
 /dist/
