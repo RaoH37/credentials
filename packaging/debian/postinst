@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+. /usr/share/debconf/confmodule
+
+CRED=/etc/credentials/passphrase.cred
+
+forget_passphrase() {
+	# Ne pas laisser la passphrase dans la base debconf.
+	db_set credentials/passphrase "" || true
+	db_set credentials/passphrase-again "" || true
+	db_fset credentials/passphrase seen false || true
+	db_fset credentials/passphrase-again seen false || true
+}
+
+case "$1" in
+configure)
+	systemd-sysusers /usr/lib/sysusers.d/credentials.conf
+	install -d -m 0700 -o credentials -g credentials /var/lib/credentials
+
+	if [ ! -e "$CRED" ]; then
+		db_get credentials/passphrase || true
+		if [ -n "$RET" ]; then
+			printf '%s' "$RET" | /usr/lib/credentials/encrypt-passphrase "$CRED"
+		fi
+	fi
+	forget_passphrase
+
+	if [ -d /run/systemd/system ]; then
+		systemctl daemon-reload
+		systemctl enable --quiet credentials.service
+		if [ -e "$CRED" ]; then
+			# Installation ou mise à jour : (re)démarre avec le nouveau binaire.
+			systemctl restart credentials.service || \
+				echo "credentials : le service n'a pas démarré, voir : journalctl -u credentials" >&2
+		fi
+	fi
+
+	if [ ! -e "$CRED" ]; then
+		echo "credentials : aucune passphrase configurée, le service ne démarrera pas."
+		echo "credentials : lancez « sudo credentials-passphrase »."
+	fi
+	;;
+esac
+
+db_stop
+exit 0

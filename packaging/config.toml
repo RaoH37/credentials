@@ -1,0 +1,18 @@
+# Configuration du service credentials (lue via : credentials -config /etc/credentials/config.toml)
+# Après modification : sudo systemctl restart credentials
+
+# Adresse d'écoute. Seules les adresses loopback sont acceptées
+# (127.0.0.1, ::1, localhost) : l'API n'a pas d'authentification.
+addr = "127.0.0.1:12345"
+
+# Emplacement de la base SQLite.
+# Le service est isolé (ProtectSystem=strict, ProtectHome=yes) : seul
+# /var/lib/credentials est accessible en écriture. Pour un autre emplacement,
+# ajoutez un override : sudo systemctl edit credentials
+#   [Service]
+#   ReadWritePaths=/autre/dossier
+db = "/var/lib/credentials/credentials.db"
+
+# La passphrase n'est PAS dans ce fichier : elle est chiffrée par systemd-creds
+# (TPM2 + clé de l'hôte) dans /etc/credentials/passphrase.cred.
+# Pour la (re)définir : sudo credentials-passphrase

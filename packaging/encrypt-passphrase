@@ -1,0 +1,21 @@
+#!/bin/sh
+# Usage : encrypt-passphrase FICHIER.cred < passphrase
+# Chiffre la passphrase lue sur l'entrée standard avec systemd-creds.
+# TPM2 + clé de l'hôte si une puce TPM2 est présente, sinon clé de l'hôte seule.
+# --tpm2-pcrs= vide : pas de liaison à l'état du firmware, pour qu'une mise à
+# jour du BIOS ou de Secure Boot ne rende pas la passphrase indéchiffrable.
+set -eu
+out=$1
+if systemd-analyze has-tpm2 >/dev/null 2>&1; then
+	set -- --with-key=host+tpm2 --tpm2-pcrs=
+else
+	set -- --with-key=host
+fi
+install -d -m 0700 "$(dirname "$out")"
+tmp=$(mktemp "$out.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+# La passphrase est passée par stdin : elle n'apparaît jamais dans ps ni sur disque.
+tr -d '\n' | systemd-creds encrypt --name=passphrase "$@" - "$tmp"
+chmod 0600 "$tmp"
+mv -f "$tmp" "$out"
+trap - EXIT

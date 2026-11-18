@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS credentials (
 // OpenStore ouvre (ou crée) la base et dérive la clé depuis la passphrase.
 // À la première ouverture, un sel et un vérificateur sont générés et stockés.
 func OpenStore(path, passphrase string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+path+"?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)")
+	db, err := sql.Open("sqlite", "file:"+path+"?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=secure_delete(ON)")
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +104,80 @@ func OpenStore(path, passphrase string) (*Store, error) {
 }
 
 func (s *Store) Close() error { return s.db.Close() }
+
+// Rekey rechiffre toute la base avec une nouvelle passphrase (et un nouveau
+// sel), dans une seule transaction : en cas d'erreur, rien n'est modifié.
+// Renvoie le nombre de credentials rechiffrés.
+func (s *Store) Rekey(newPassphrase string) (int, error) {
+	salt := make([]byte, saltLen)
+	if _, err := rand.Read(salt); err != nil {
+		return 0, err
+	}
+	nc, err := NewCipher(deriveKey(newPassphrase, salt))
+	if err != nil {
+		return 0, err
+	}
+	verifier, err := nc.Encrypt([]byte(verifierPlaintext), []byte("verifier"))
+	if err != nil {
+		return 0, err
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	type row struct {
+		id   int64
+		blob []byte
+	}
+	var rows []row
+	rs, err := tx.Query(`SELECT id, credentials FROM credentials`)
+	if err != nil {
+		return 0, err
+	}
+	for rs.Next() {
+		var r row
+		if err := rs.Scan(&r.id, &r.blob); err != nil {
+			rs.Close()
+			return 0, err
+		}
+		rows = append(rows, r)
+	}
+	rs.Close()
+	if err := rs.Err(); err != nil {
+		return 0, err
+	}
+
+	for _, r := range rows {
+		pt, err := s.cipher.Decrypt(r.blob, aadFor(r.id))
+		if err != nil {
+			return 0, fmt.Errorf("déchiffrement du credential %d : %w", r.id, err)
+		}
+		blob, err := nc.Encrypt(pt, aadFor(r.id))
+		if err != nil {
+			return 0, err
+		}
+		if _, err := tx.Exec(`UPDATE credentials SET credentials=? WHERE id=?`, blob, r.id); err != nil {
+			return 0, err
+		}
+	}
+	if _, err := tx.Exec(`UPDATE meta SET value=? WHERE key='salt'`, salt); err != nil {
+		return 0, err
+	}
+	if _, err := tx.Exec(`UPDATE meta SET value=? WHERE key='verifier'`, verifier); err != nil {
+		return 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	s.cipher = nc
+	// Réécrit la base dans le fichier principal et vide le WAL, pour ne pas
+	// laisser traîner les anciennes versions chiffrées des lignes.
+	_, _ = s.db.Exec(`PRAGMA wal_checkpoint(TRUNCATE)`)
+	return len(rows), nil
+}
 
 func aadFor(id int64) []byte { return []byte("credential:" + strconv.FormatInt(id, 10)) }
 

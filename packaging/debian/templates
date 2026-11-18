@@ -1,0 +1,20 @@
+Template: credentials/passphrase
+Type: password
+Description: Passphrase de chiffrement des credentials :
+ Cette passphrase dérive la clé qui chiffre la colonne « credentials » de la
+ base. Elle ne sera pas stockée en clair : systemd-creds la chiffre avec la
+ puce TPM2 et la clé de cette machine, pour que le service démarre seul.
+ .
+ Si une base existe déjà dans /var/lib/credentials, saisissez la passphrase
+ avec laquelle elle a été créée.
+ .
+ Laissez vide pour la définir plus tard avec : sudo credentials-passphrase
+
+Template: credentials/passphrase-again
+Type: password
+Description: Confirmez la passphrase :
+
+Template: credentials/passphrase-mismatch
+Type: error
+Description: Les passphrases ne correspondent pas
+ Les deux saisies sont différentes. Recommencez.

@@ -1,0 +1,27 @@
+#!/bin/sh
+# Questions debconf : posées seulement si aucune passphrase n'est configurée.
+set -e
+. /usr/share/debconf/confmodule
+
+[ -e /etc/credentials/passphrase.cred ] && exit 0
+
+# Déjà répondu lors d'une pré-configuration (apt lance ce script deux fois).
+db_get credentials/passphrase || true
+[ -n "$RET" ] && exit 0
+
+while :; do
+	db_input high credentials/passphrase || true
+	db_input high credentials/passphrase-again || true
+	db_go || true
+	db_get credentials/passphrase; P1="$RET"
+	db_get credentials/passphrase-again; P2="$RET"
+	# Vide (ou frontend non interactif) : on configurera plus tard.
+	[ -z "$P1" ] && break
+	[ "$P1" = "$P2" ] && break
+	db_set credentials/passphrase ""
+	db_set credentials/passphrase-again ""
+	db_fset credentials/passphrase seen false
+	db_fset credentials/passphrase-again seen false
+	db_input critical credentials/passphrase-mismatch || true
+	db_fset credentials/passphrase-mismatch seen false
+done
